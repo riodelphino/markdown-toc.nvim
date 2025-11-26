@@ -6,7 +6,7 @@ local empty_or_nil = utils.empty_or_nil
 local falsey = utils.falsey
 
 local M = {}
-M.commands = {'insert', 'update', 'remove'}
+M.commands = {'insert', 'update', 'remove', 'toggle'}
 
 local function fmt_fence_start(fence) return '<!-- '..fence..' -->' end
 local function fmt_fence_end(fence) return '<!-- '..fence..' -->' end
@@ -20,6 +20,8 @@ local function get_fences()
 end
 
 local function insert_toc(opts)
+  if not config.opts.auto_update.enabled then return end
+
   if not opts then
     opts = {}
   end
@@ -94,6 +96,7 @@ local function remove_toc(not_found_ok)
 end
 
 local function update_toc(opts, fail_ok)
+  if not config.opts.auto_update.enabled then return end
   if opts.range_start and opts.range_end then
     utils.delete_lines(opts.range_start, opts.range_end)
     local use_fence = opts.bang
@@ -121,6 +124,13 @@ local function update_or_remove_toc(opts)
   end
   opts.line = locations.start-1
   return insert_toc(opts)
+end
+
+local function toggle_auto_update()
+  config.opts.auto_update.enabled = not config.opts.auto_update.enabled
+  local new_enabled = config.opts.auto_update.enabled
+  local msg = string.format("Auto Update: %s", new_enabled and "Enabled" or "Disabled")
+  vim.notify(msg, vim.log.levels.INFO, { title = "markdown-toc"})
 end
 
 local function _debug_show_headings()
@@ -170,6 +180,8 @@ local function handle_command(opts)
     return update_toc(fnopts, false)
   elseif cmd == "remove" then
     return remove_toc()
+  elseif cmd == "toggle" then
+    return toggle_auto_update()
   else
     vim.notify("INTERNAL ERROR: Unhandled command "..cmd, vim.log.levels.ERROR)
   end

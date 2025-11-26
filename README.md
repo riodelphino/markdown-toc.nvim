@@ -213,6 +213,12 @@ These shortcuts are shown in `[square brackets]` below.
   It may print errors when no fences are found, start-end fences are not
   matched, or end found before start.
 
+- `:Mtoc t[oggle]`
+
+  Toggle automatic ToC updates on save.
+
+  Switches the 'auto_update.enabled' option between true and false.
+
 
 ## Full Configuration
 
